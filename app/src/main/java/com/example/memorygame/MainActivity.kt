@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,11 +37,7 @@ class MainActivity : ComponentActivity() {
                                         fontSize = 25.sp,
                                         color = MaterialTheme.colors.secondary
                                     )
-                                    Text(
-                                        text = "Score: 0",
-                                        fontSize = 20.sp,
-                                        color = MaterialTheme.colors.onPrimary,
-                                    )
+                                    ScoreText(vm = model)
 
                                 }
 
@@ -55,4 +53,14 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+@Composable
+fun ScoreText(vm: GameViewModel) {
+    val score = vm.score.observeAsState().value
+    Text(
+        text = "Score: ${score}",
+        fontSize = 20.sp,
+        color = MaterialTheme.colors.onPrimary,
+    )
 }

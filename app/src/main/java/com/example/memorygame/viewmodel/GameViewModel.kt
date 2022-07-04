@@ -1,10 +1,6 @@
 package com.example.memorygame.viewmodel
 
 import android.os.Handler
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -23,7 +19,11 @@ class GameViewModel : ViewModel() {
 
     private val _openedCards = MutableLiveData(mutableListOf<Int>())
     val openedCards: LiveData<MutableList<Int>> = _openedCards
+
     val currentlyOpenedCards = mutableListOf<Int>()
+
+    private val _score = MutableLiveData(0)
+    val score: MutableLiveData<Int> = _score
 
 
     fun addToOpenedCard(id: Int) {
@@ -32,20 +32,21 @@ class GameViewModel : ViewModel() {
         var counter = 0
         currentlyOpenedCards.forEach { element ->
             if (element == id) {
-                counter ++
+                counter++
             }
         }
-        if (counter==2) {
+        if (counter == 2) {
             currentlyOpenedCards.clear()
-            _openedCards.value=_openedCards.value?.toMutableList()?.apply {
+            _openedCards.value = _openedCards.value?.toMutableList()?.apply {
                 add(id)
             }
+            _score.postValue(_score.value!! + 1)
 
         }
         if (currentlyOpenedCards.size == 2) {
             Handler().postDelayed({
                 currentlyOpenedCards.clear()
-                _openedCards.value=_openedCards.value?.toMutableList()?.apply {
+                _openedCards.value = _openedCards.value?.toMutableList()?.apply {
                     add(-1)
                 }
             }, 1000)
