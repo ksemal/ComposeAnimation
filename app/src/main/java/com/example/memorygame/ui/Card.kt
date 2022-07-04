@@ -13,16 +13,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.memorygame.R
-import com.example.memorygame.ui.theme.MemoryGameTheme
+import com.example.memorygame.viewmodel.GameViewModel
 
 enum class FlipCard(val angle: Float) {
     Forward(0f) {
@@ -37,9 +35,20 @@ enum class FlipCard(val angle: Float) {
 
 @Composable
 fun CardImg(
+    id: Int,
     image: Painter,
+    model: GameViewModel
 ) {
+
     var flipCard by remember { mutableStateOf(FlipCard.Forward) }
+    val ids = model.openedCards.observeAsState().value
+
+    if (model.currentlyOpenedCards.size == 0) {
+        flipCard = FlipCard.Forward
+        if (ids?.indexOf(id) != -1) flipCard = FlipCard.Previous
+
+    }
+
     val rotation = animateFloatAsState(
         targetValue = flipCard.angle,
         animationSpec = tween(
@@ -54,12 +63,6 @@ fun CardImg(
                 RoundedCornerShape(12.dp)
             )
             .background(MaterialTheme.colors.primary)
-            .clickable(
-                onClick = {
-                    flipCard = flipCard.next
-                    println("flip back")
-                }
-            )
             .graphicsLayer {
                 rotationY = rotation.value
                 cameraDistance = 12f * density
@@ -74,6 +77,12 @@ fun CardImg(
                         RoundedCornerShape(12.dp)
                     )
                     .background(MaterialTheme.colors.secondary)
+                    .clickable(
+                        onClick = {
+                            flipCard = FlipCard.Previous
+                            model.addToOpenedCard(id)
+                        }
+                    )
             )
         } else {
             Image(
@@ -87,10 +96,3 @@ fun CardImg(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun CardPreview() {
-    MemoryGameTheme {
-        CardImg(painterResource(R.drawable.ic_crocodile))
-    }
-}
