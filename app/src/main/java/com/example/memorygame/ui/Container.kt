@@ -2,15 +2,19 @@ package com.example.memorygame.ui
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.Composable
+import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.memorygame.R
 import com.example.memorygame.viewmodel.GameViewModel
 
+@ExperimentalMaterialApi
 @Composable
-fun Container(model: GameViewModel = GameViewModel()) {
+fun Container(model: GameViewModel) {
     Column {
         for (row in 0..3) {
             Row(
@@ -20,7 +24,9 @@ fun Container(model: GameViewModel = GameViewModel()) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 for (item in 0..2) {
-                    Card(GetImage(model.imageHash))
+                    CardImg(
+                        GetImage(obj = model.imageHash),
+                    )
                 }
             }
         }
