@@ -14,8 +14,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
@@ -33,6 +35,7 @@ enum class FlipCard(val angle: Float) {
     abstract val next: FlipCard
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CardImg(
     id: Int,
@@ -43,11 +46,18 @@ fun CardImg(
     var flipCard by remember { mutableStateOf(FlipCard.Forward) }
     val ids = model.openedCards.observeAsState().value
 
+    val selected = remember { mutableStateOf(false) }
+    val scale = animateFloatAsState(if (selected.value) 50f else 1f)
+
     if (model.currentlyOpenedCards.size == 0) {
         flipCard = FlipCard.Forward
-        if (ids?.indexOf(id) != -1) flipCard = FlipCard.Previous
+        selected.value = false
+        if (ids?.indexOf(id) != -1) {
+            flipCard = FlipCard.Previous
+        }
 
     }
+
 
     val rotation = animateFloatAsState(
         targetValue = flipCard.angle,
@@ -62,7 +72,7 @@ fun CardImg(
             .clip(
                 RoundedCornerShape(12.dp)
             )
-            .background(MaterialTheme.colors.primary)
+            .background(if (selected.value) MaterialTheme.colors.primary else MaterialTheme.colors.secondaryVariant)
             .graphicsLayer {
                 rotationY = rotation.value
                 cameraDistance = 12f * density
@@ -71,6 +81,7 @@ fun CardImg(
         if (rotation.value <= 90f) {
             Box(
                 modifier = Modifier
+                    .scale(scale.value)
                     .fillMaxSize()
                     .padding(4.dp)
                     .clip(
@@ -79,6 +90,7 @@ fun CardImg(
                     .background(MaterialTheme.colors.secondary)
                     .clickable(
                         onClick = {
+                            selected.value = true
                             flipCard = FlipCard.Previous
                             model.addToOpenedCard(id)
                         }
@@ -90,7 +102,8 @@ fun CardImg(
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(4.dp), colorFilter = ColorFilter.tint(MaterialTheme.colors.secondary)
+                    .padding(if (!selected.value) 20.dp else 6.dp),
+                colorFilter = ColorFilter.tint(if (selected.value) MaterialTheme.colors.secondary else MaterialTheme.colors.secondaryVariant)
             )
         }
     }
